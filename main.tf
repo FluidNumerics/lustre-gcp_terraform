@@ -3,8 +3,19 @@ provider "google" {
  version = "3.9"
 }
 
+locals {
+
+  max_gb_per_vm = 263168
+  max_gb_per_pd = 64000
+  max_gb_per_localssd = 9000
+
+  mdt_per_mds = var.mdt_disk_type == "local-ssd" ? ceil(var.mdt_disk_size_gb/375) : var.mdt_per_mds
+  ost_per_oss = var.ost_disk_type == "local-ssd" ? ceil(var.ost_disk_size_gb/375) : var.ost_per_oss
+
+}
+
 resource "google_compute_disk" "mdt" {
-  count = var.mds_node_count
+  count = var.mdt_disk_type == "local-ssd" ? 0 : var.mds_node_count*local.mdt_per_mds
   name = "${var.cluster_name}-mdt${count.index}"
   type = var.mdt_disk_type
   zone = var.zone
@@ -27,10 +38,23 @@ resource "google_compute_instance" "mds" {
       type = var.mds_boot_disk_type
     }
   }
-  attached_disk {
-    source = google_compute_disk.mdt[count.index].self_link 
-    device_name = "mdt"
+
+  // Forcing this to only permit one mdt per mds when using PD disk
+  dynamic "attached_disk" {
+    for_each = var.mdt_disk_type == "local-ssd" ? [] : [1]
+    content {
+      source = google_compute_disk.mdt[count.index].self_link 
+      device_name = "mdt"
+    }
   }
+
+  dynamic "scratch_disk" {
+    for_each = var.mdt_disk_type == "local-ssd" ? range(local.mdt_per_mds) : []
+    content {
+      interface = "NVME"
+    }
+  }
+
   metadata_startup_script = file("${path.module}/scripts/startup-script.sh")
   metadata = {
     cluster-name = var.cluster_name
@@ -40,6 +64,10 @@ resource "google_compute_instance" "mds" {
     hsm-gcs-prefix = var.hsm_gcs_prefix
     lustre-version = var.lustre_version
     e2fs-version = var.e2fs_version
+    mdt_per_mds = local.mdt_per_mds
+    ost_per_oss = local.ost_per_oss
+    mdt_disk_type = var.mdt_disk_type
+    ost_disk_type = var.ost_disk_type
     enable-oslogin = "TRUE"
   }
   network_interface {
@@ -57,7 +85,7 @@ resource "google_compute_instance" "mds" {
 
 // OSS
 resource "google_compute_disk" "ost" {
-  count = var.oss_node_count
+  count = var.mdt_disk_type == "local-ssd" ? 0 : var.oss_node_count*local.ost_per_oss
   name = "${var.cluster_name}-ost${count.index}"
   type = var.ost_disk_type
   zone = var.zone
@@ -80,10 +108,23 @@ resource "google_compute_instance" "oss" {
       type = var.oss_boot_disk_type
     }
   }
-  attached_disk {
-    source = google_compute_disk.ost[count.index].self_link 
-    device_name = "ost"
+
+  // Forcing this to only permit one mdt per mds when using PD disk
+  dynamic "attached_disk" {
+    for_each = var.ost_disk_type == "local-ssd" ? [] : [1]
+    content {
+      source = google_compute_disk.ost[count.index].self_link 
+      device_name = "ost"
+    }
   }
+
+  dynamic "scratch_disk" {
+    for_each = var.ost_disk_type == "local-ssd" ? range(local.ost_per_mds) : []
+    content {
+      interface = "NVME"
+    }
+  }
+
   metadata_startup_script = file("${path.module}/scripts/startup-script.sh")
   metadata = {
     cluster-name = var.cluster_name
@@ -93,6 +134,10 @@ resource "google_compute_instance" "oss" {
     hsm-gcs-prefix = var.hsm_gcs_prefix
     lustre-version = var.lustre_version
     e2fs-version = var.e2fs_version
+    mdt_per_mds = local.mdt_per_mds
+    ost_per_oss = local.ost_per_oss
+    mdt_disk_type = var.mdt_disk_type
+    ost_disk_type = var.ost_disk_type
     enable-oslogin = "TRUE"
   }
   network_interface {
@@ -131,6 +176,10 @@ resource "google_compute_instance" "hsm" {
     hsm-gcs-prefix = var.hsm_gcs_prefix
     lustre-version = var.lustre_version
     e2fs-version = var.e2fs_version
+    mdt_per_mds = var.mdt_per_mds
+    ost_per_oss = var.ost_per_oss
+    mdt_disk_type = var.mdt_disk_type
+    ost_disk_type = var.ost_disk_type
     enable-oslogin = "TRUE"
   }
   network_interface {
