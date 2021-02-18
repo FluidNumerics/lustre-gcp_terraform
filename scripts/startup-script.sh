@@ -18,12 +18,11 @@
 
 # Imported variables from lustre.jinja, do not modify
 CLUSTER_NAME=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name" -H "Metadata-Flavor: Google")
+MDS_HOSTNAME="${CLUSTER_NAME}-mds0"
 FS_NAME=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/fs-name" -H "Metadata-Flavor: Google")
 NODE_ROLE=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/node-role" -H "Metadata-Flavor: Google")
 HSM_GCS_BUCKET=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/hsm-gcs" -H "Metadata-Flavor: Google")
 HSM_GCS_BUCKET_IMPORT=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/hsm-gcs-prefix" -H "Metadata-Flavor: Google")
-LUSTRE_VERSION=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/lustre-version" -H "Metadata-Flavor: Google")
-E2FS_VERSION=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/e2fs-version" -H "Metadata-Flavor: Google")
 
 ost_mount_point="/mnt/ost"
 mdt_mount_point="/mnt/mdt"
@@ -32,10 +31,11 @@ ost_per_oss=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/
 mdt_disk_type=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/mdt_disk_type" -H "Metadata-Flavor: Google")
 ost_disk_type=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/ost_disk_type" -H "Metadata-Flavor: Google")
 
-MDS_HOSTNAME="${CLUSTER_NAME}-mds0"
+LUSTRE_VERSION=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/lustre-version" -H "Metadata-Flavor: Google")
 LUSTRE_CLIENT_VERSION="lustre-2.10.8"
 LUSTRE_URL="https://downloads.whamcloud.com/public/lustre/${LUSTRE_VERSION}/el7/server/RPMS/x86_64/"
 LUSTRE_CLIENT_URL="https://downloads.whamcloud.com/public/lustre/${LUSTRE_CLIENT_VERSION}/el7/client/RPMS/x86_64/"
+E2FS_VERSION=$(curl "http://metadata.google.internal/computeMetadata/v1/instance/attributes/e2fs-version" -H "Metadata-Flavor: Google")
 E2FS_URL="https://downloads.whamcloud.com/public/e2fsprogs/${E2FS_VERSION}/el7/RPMS/x86_64/"
 
 # Array of all required RPMs for Lustre
@@ -105,10 +105,8 @@ function install_lemur() {
 	mkdir /lustre
 	cd /lustre
 
-	git clone https://github.com/mhugues/lemur.git
-	cd lemur
-
-	git checkout feature/lhsm-plugin-gcs
+	git clone https://github.com/GoogleCloudPlatform/storage-lemur.git
+	cd storage-lemur
 
 	sudo make local-rpm
 
@@ -271,8 +269,8 @@ function main() {
 		# Decrement the index by 1 to convert to Lustre's indexing
 		if [ ! $host_index ]; then
 			host_index=0
-		else
-			let host_index=$host_index-1
+		#else
+	        #		let host_index=$host_index-1
 		fi
 
 		# If the local node running this script is a Lustre MDS, install the MDS/MGS software
@@ -338,7 +336,7 @@ function main() {
 			let index=$host_index*$ost_per_oss
 			echo "INDEX = $index" >> /lustre/install.log
 			echo "OST_PER_OSS = $ost_per_oss" >> /lustre/install.log
-			if [ "ost_disk_type" == "local-ssd" ]; then
+			if [ "$ost_disk_type" == "local-ssd" ]; then
 				disks=$(ls /dev/nvme0n*)
 			else
 				disks=$(ls /dev/sd* | grep -v sda[0-9]*$ )
