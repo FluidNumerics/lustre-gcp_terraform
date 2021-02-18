@@ -95,7 +95,7 @@ variable "mdt_disk_type" {
 
 variable "mdt_disk_size_gb" {
   type = number
-  default = 100
+  default = 1024
   description = "Size of disk for the MDT disks (in GB)."
 
   validation {
@@ -162,7 +162,7 @@ variable "ost_disk_type" {
 
 variable "ost_disk_size_gb" {
   type = number
-  default = 2048
+  default = 1500
   description = "Size of disk for the OST disks (in GB)."
 
   validation {
