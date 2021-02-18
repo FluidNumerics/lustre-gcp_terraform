@@ -85,7 +85,7 @@ resource "google_compute_instance" "mds" {
 
 // OSS
 resource "google_compute_disk" "ost" {
-  count = var.mdt_disk_type == "local-ssd" ? 0 : var.oss_node_count*local.ost_per_oss
+  count = var.ost_disk_type == "local-ssd" ? 0 : var.oss_node_count*local.ost_per_oss
   name = "${var.cluster_name}-ost${count.index}"
   type = var.ost_disk_type
   zone = var.zone
@@ -119,7 +119,7 @@ resource "google_compute_instance" "oss" {
   }
 
   dynamic "scratch_disk" {
-    for_each = var.ost_disk_type == "local-ssd" ? range(local.ost_per_mds) : []
+    for_each = var.ost_disk_type == "local-ssd" ? range(local.ost_per_oss) : []
     content {
       interface = "NVME"
     }
