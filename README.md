@@ -2,6 +2,8 @@
 
 This Terraform module is derived from the [open-source deployment-manager samples repository from Google Cloud](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/master/community/lustre). Fluid Numerics has updated the [startup-script](https://github.com/GoogleCloudPlatform/deploymentmanager-samples/tree/master/community/lustre/scripts/startup-script.sh) to pass certain variables through instance metadata.
 
+## Dependencies
+* [Terraform 0.14.0 or greater](https://www.terraform.io/downloads.html)
 
 ## Resources
 * [A great resource for learning about the Lustre architecture](http://wiki.lustre.org/Introduction_to_Lustre)
