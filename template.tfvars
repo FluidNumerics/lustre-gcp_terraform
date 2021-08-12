@@ -1,6 +1,7 @@
-project = "PROJECT ID"
-vpc_subnet = "projects/PROJECT ID/regions/REGION/subnetworks/SUBNETWORK"
-zone = "ZONE"
+project = "@PROJECT@"
+vpc_subnet = "projects/@PROJECT@/regions/@REGION@/subnetworks/@SUBNETWORK@"
+zone = "@ZONE@"
+image = projects/@PROJECT@/global/images/family/lustre-gcp
 
 
 // Edit the settings below to customize your Lustre cluster

@@ -29,7 +29,7 @@ resource "google_compute_instance" "mds" {
   boot_disk {
     auto_delete = true
     initialize_params {
-      image = "projects/centos-cloud/global/images/family/centos-7"
+      image = var.image
       size = var.mds_boot_disk_size_gb
       type = var.mds_boot_disk_type
     }
@@ -99,7 +99,7 @@ resource "google_compute_instance" "oss" {
   boot_disk {
     auto_delete = true
     initialize_params {
-      image = "projects/centos-cloud/global/images/family/centos-7"
+      image = var.image
       size = var.oss_boot_disk_size_gb
       type = var.oss_boot_disk_type
     }
@@ -158,7 +158,7 @@ resource "google_compute_instance" "hsm" {
   boot_disk {
     auto_delete = true
     initialize_params {
-      image = "projects/centos-cloud/global/images/family/centos-7"
+      image = var.image
       size = 20
       type = "pd-standard"
     }

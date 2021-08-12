@@ -1,3 +1,7 @@
+variable "image" {
+  type = string
+  description = "VM Image for Lustre on Google Cloud"
+}
 
 variable "lustre_version" {
   type = string
