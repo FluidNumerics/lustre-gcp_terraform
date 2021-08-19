@@ -1,16 +1,12 @@
+variable "create_lustre" {
+  type = bool
+  description = "Boolean for controlling lustre creation (useful for optional modules)"
+  default = true
+}
+
 variable "image" {
   type = string
   description = "VM Image for Lustre on Google Cloud"
-}
-
-variable "lustre_version" {
-  type = string
-  default = "latest-release"
-}
-
-variable "e2fs_version" {
-  type = string
-  default = "latest"
 }
 
 variable "project" {

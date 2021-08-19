@@ -4,6 +4,10 @@ locals {
   max_gb_per_vm = 263168
   max_gb_per_pd = 64000
   max_gb_per_localssd = 9000
+ 
+  mds_node_count = var.create_lustre ? var.mds_node_count : 0
+  hsm_node_count = var.create_lustre ? var.hsm_node_count : 0
+  oss_node_count = var.create_lustre ? var.oss_node_count : 0
 
   mdt_per_mds = var.mdt_disk_type == "local-ssd" ? ceil(var.mdt_disk_size_gb/375) : var.mdt_per_mds
   ost_per_oss = var.ost_disk_type == "local-ssd" ? ceil(var.ost_disk_size_gb/375) : var.ost_per_oss
@@ -11,7 +15,7 @@ locals {
 }
 
 resource "google_compute_disk" "mdt" {
-  count = var.mdt_disk_type == "local-ssd" ? 0 : var.mds_node_count*local.mdt_per_mds
+  count = var.mdt_disk_type == "local-ssd" ? 0 : local.mds_node_count*local.mdt_per_mds
   name = "${var.cluster_name}-mdt${count.index}"
   type = var.mdt_disk_type
   zone = var.zone
@@ -20,7 +24,7 @@ resource "google_compute_disk" "mdt" {
 }
 
 resource "google_compute_instance" "mds" {
-  count = var.mds_node_count
+  count = local.mds_node_count
   name = "${var.cluster_name}-mds${count.index}"
   project = var.project
   machine_type = var.mds_machine_type
@@ -58,8 +62,6 @@ resource "google_compute_instance" "mds" {
     node-role = "MDS"
     hsm-gcs = var.hsm_gcs_bucket
     hsm-gcs-prefix = var.hsm_gcs_prefix
-    lustre-version = var.lustre_version
-    e2fs-version = var.e2fs_version
     mdt_per_mds = local.mdt_per_mds
     ost_per_oss = local.ost_per_oss
     mdt_disk_type = var.mdt_disk_type
@@ -81,7 +83,7 @@ resource "google_compute_instance" "mds" {
 
 // OSS
 resource "google_compute_disk" "ost" {
-  count = var.ost_disk_type == "local-ssd" ? 0 : var.oss_node_count*local.ost_per_oss
+  count = var.ost_disk_type == "local-ssd" ? 0 : local.oss_node_count*local.ost_per_oss
   name = "${var.cluster_name}-ost${count.index}"
   type = var.ost_disk_type
   zone = var.zone
@@ -90,7 +92,7 @@ resource "google_compute_disk" "ost" {
 }
 
 resource "google_compute_instance" "oss" {
-  count = var.oss_node_count
+  count = local.oss_node_count
   name = "${var.cluster_name}-oss${count.index}"
   project = var.project
   machine_type = var.oss_machine_type
@@ -128,8 +130,6 @@ resource "google_compute_instance" "oss" {
     node-role = "OSS"
     hsm-gcs = var.hsm_gcs_bucket
     hsm-gcs-prefix = var.hsm_gcs_prefix
-    lustre-version = var.lustre_version
-    e2fs-version = var.e2fs_version
     mdt_per_mds = local.mdt_per_mds
     ost_per_oss = local.ost_per_oss
     mdt_disk_type = var.mdt_disk_type
@@ -149,7 +149,7 @@ resource "google_compute_instance" "oss" {
 }
 
 resource "google_compute_instance" "hsm" {
-  count = var.hsm_node_count
+  count = local.hsm_node_count
   name = "${var.cluster_name}-hsm${count.index}"
   project = var.project
   machine_type = var.hsm_machine_type
@@ -170,8 +170,6 @@ resource "google_compute_instance" "hsm" {
     node-role = "HSM"
     hsm-gcs = var.hsm_gcs_bucket
     hsm-gcs-prefix = var.hsm_gcs_prefix
-    lustre-version = var.lustre_version
-    e2fs-version = var.e2fs_version
     mdt_per_mds = var.mdt_per_mds
     ost_per_oss = var.ost_per_oss
     mdt_disk_type = var.mdt_disk_type
