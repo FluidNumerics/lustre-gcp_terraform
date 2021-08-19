@@ -200,3 +200,7 @@ variable "hsm_gcs_prefix" {
   default = ""
   description = "Google Cloud Storage bucket path to import data from to Lustre."
 }
+
+output "server_ip" {
+  value = google_compute_instance.mds[0].name
+}
