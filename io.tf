@@ -202,5 +202,5 @@ variable "hsm_gcs_prefix" {
 }
 
 output "server_ip" {
-  value = google_compute_instance.mds[0].name
+  value = var.create_lustre ? google_compute_instance.mds[0].name : null
 }
