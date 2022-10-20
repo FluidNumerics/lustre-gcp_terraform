@@ -99,8 +99,8 @@ variable "mdt_disk_size_gb" {
   description = "Size of disk for the MDT disks (in GB)."
 
   validation {
-    condition = var.mdt_disk_size_gb >= 10 && var.mdt_disk_size_gb <= 3000
-    error_message = "MDT disk size must be greater than or equal to 10GB and less than or equal to 3,000 GB."
+    condition = var.mdt_disk_size_gb >= 10 && var.mdt_disk_size_gb <= 9000
+    error_message = "MDT disk size must be greater than or equal to 10GB and less than or equal to 9,000 GB."
   }
 }
 
@@ -166,8 +166,8 @@ variable "ost_disk_size_gb" {
   description = "Size of disk for the OST disks (in GB)."
 
   validation {
-    condition = var.ost_disk_size_gb >= 10 && var.ost_disk_size_gb <= 3000
-    error_message = "OST disk size must be greater than or equal to 10GB and less than or equal to 3,000 GB."
+    condition = var.ost_disk_size_gb >= 10 && var.ost_disk_size_gb <= 9000
+    error_message = "OST disk size must be greater than or equal to 10GB and less than or equal to 9,000 GB."
   }
 }
 
