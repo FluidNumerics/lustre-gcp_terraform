@@ -38,11 +38,11 @@ E2FS_URL="https://downloads.whamcloud.com/public/e2fsprogs/${E2FS_VERSION}/el7/R
 LUSTRE_RPMS=("kernel-3*.rpm"
 "kernel-devel-*.rpm" 
 "kernel-debuginfo-common-*.rpm"
-"lustre-2*.rpm"
 "lustre-ldiskfs-dkms-*.rpm"
 "lustre-osd-ldiskfs-mount-*.rpm"
 "kmod-lustre-2*.rpm"
-"kmod-lustre-osd-ldiskfs-*.rpm")
+"kmod-lustre-osd-ldiskfs-*.rpm"
+"lustre-2*.rpm")
 
 LUSTRE_CLIENT_RPMS=("kmod-lustre-client-2*.rpm"
 "lustre-client-2*.rpm")

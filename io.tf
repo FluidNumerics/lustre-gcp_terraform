@@ -127,6 +127,17 @@ variable "oss_machine_type" {
   description = "GCP Machine type for the object storage server nodes."
 }
 
+variable "oss_nic_type" {
+  type = string
+  default = "VIRTIO_NET"
+  description = "NIC type for OSS nodes"
+
+  validation {
+    condition = contains(["VIRTIO_NET","GVNIC"], var.oss_nic_type)
+    error_message = "Allowed values for oss_nic_type are \"VIRTIO_NET\" or \"GVNIC\"."
+  }
+}
+
 variable "oss_boot_disk_type" {
   type = string
   default = "pd-standard"

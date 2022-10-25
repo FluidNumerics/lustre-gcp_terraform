@@ -72,7 +72,16 @@ resource "google_compute_instance" "mds" {
     subnetwork  = var.vpc_subnet
     access_config {
     }
+    nic_type = var.oss_nic_type
   }
+/*
+  dynamic "network_performance_config" {
+    for_each = var.oss_nic_type == "GVNIC" ? range(1) : []
+    content {
+      total_egress_bandwidth_tier = "TIER_1"
+    }
+  }
+*/
   service_account {
     email  = var.service_account
     scopes = ["cloud-platform"]
@@ -126,7 +135,7 @@ resource "google_compute_instance" "oss" {
   metadata_startup_script = file("${path.module}/scripts/startup-script.sh")
   metadata = {
     cluster-name = var.cluster_name
-    fs-name = var.cluster_name
+    fs-name = var.fs_name
     node-role = "OSS"
     hsm-gcs = var.hsm_gcs_bucket
     hsm-gcs-prefix = var.hsm_gcs_prefix
@@ -166,7 +175,7 @@ resource "google_compute_instance" "hsm" {
   metadata_startup_script = file("${path.module}/scripts/startup-script.sh")
   metadata = {
     cluster-name = var.cluster_name
-    fs-name = var.cluster_name
+    fs-name = var.fs_name
     node-role = "HSM"
     hsm-gcs = var.hsm_gcs_bucket
     hsm-gcs-prefix = var.hsm_gcs_prefix

@@ -1,0 +1,32 @@
+project_id = "<PROJECT ID>"
+region = "us-central1"
+zone = "us-central1-a"
+subnetwork = "default"
+
+lustre = {
+  local_mount = "/mnt/lustre"
+  image = "projects/<PROJECT ID>/global/images/lustre-gcp-2-12-7-gvnic"
+  service_account = null
+  network_tags = ["rccdev"]
+  name = "rcc-lustre"
+  fs_name = "lustre"
+  mds_node_count = 1
+  mds_machine_type = "n2-standard-80"
+  mds_boot_disk_type = "pd-standard"
+  mds_boot_disk_size_gb = 100
+  mdt_disk_type = "local-ssd"
+  mdt_disk_size_gb = 9000
+  mdt_per_mds = 1
+  oss_node_count = 2
+  oss_machine_type = "n2-standard-64" 
+  oss_nic_type="GVNIC"
+  oss_boot_disk_type = "pd-standard"
+  oss_boot_disk_size_gb = 100
+  ost_disk_type = "local-ssd"
+  ost_disk_size_gb = 9000
+  ost_per_oss = 1
+  hsm_node_count = 0
+  hsm_machine_type = "n2-standard-16"
+  hsm_gcs_bucket = null
+  hsm_gcs_prefix = null
+}

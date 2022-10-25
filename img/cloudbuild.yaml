@@ -18,16 +18,25 @@ steps:
         'img/packer.json']
   waitFor: ["-"]
 
+- id: Create GVNIC enabled Image
+  name: 'gcr.io/cloud-builders/gcloud'
+  args: ["compute",
+         "images",
+         "create",
+         "${_IMAGE_NAME}-gvnic",
+         "--source-image=${_IMAGE_NAME}",
+         "--source-image-project=${PROJECT_ID}",
+         "--guest-os-features=GVNIC"]
 
 substitutions:
     _ZONE: 'us-central1-c'
     _SUBNETWORK: 'default'
     _SOURCE_IMAGE_FAMILY: 'centos-7'
     _SOURCE_IMAGE_PROJECT: 'centos-cloud'
-    _IMAGE_NAME: 'lustre-gcp-latest'
+    _IMAGE_NAME: 'lustre-gcp-2-12-7'
     _IMAGE_FAMILY: 'lustre-gcp'
-    _LUSTRE_VERSION: 'latest-release'
+    _LUSTRE_VERSION: 'lustre-2.12.7'
     _LUSTRE_CLIENT_VERSION: 'lustre-2.12.7'
-    _E2FS_VERSION: 'latest'
+    _E2FS_VERSION: '1.46.2.wc3'
 
 timeout : 28800s
